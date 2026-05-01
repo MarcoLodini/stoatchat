@@ -20,7 +20,7 @@ concurrency:
 jobs:
   base:
     name: Test base image build
-    runs-on: arc-runner-set
+    runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     steps:
       # Configure build environment
@@ -41,7 +41,7 @@ jobs:
           cache-to: type=gha,scope=buildx-base-multi-arch,mode=max
 
   publish:
-    runs-on: arc-runner-set
+    runs-on: ubuntu-latest
     if: github.event_name != 'pull_request'
     name: Publish Docker images
     steps:
@@ -74,7 +74,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ghcr.io/stoatchat/api
+            ghcr.io/${{ github.repository_owner }}/api
       - name: Publish
         uses: docker/build-push-action@v4
         with:
@@ -93,7 +93,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ghcr.io/stoatchat/events
+            ghcr.io/${{ github.repository_owner }}/events
       - name: Publish
         uses: docker/build-push-action@v4
         with:
@@ -112,7 +112,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ghcr.io/stoatchat/file-server
+            ghcr.io/${{ github.repository_owner }}/file-server
       - name: Publish
         uses: docker/build-push-action@v4
         with:
@@ -131,7 +131,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ghcr.io/stoatchat/proxy
+            ghcr.io/${{ github.repository_owner }}/proxy
       - name: Publish
         uses: docker/build-push-action@v4
         with:
@@ -150,7 +150,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ghcr.io/stoatchat/gifbox
+            ghcr.io/${{ github.repository_owner }}/gifbox
       - name: Publish
         uses: docker/build-push-action@v4
         with:
@@ -169,7 +169,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ghcr.io/stoatchat/crond
+            ghcr.io/${{ github.repository_owner }}/crond
       - name: Publish
         uses: docker/build-push-action@v4
         with:
@@ -188,7 +188,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ghcr.io/stoatchat/pushd
+            ghcr.io/${{ github.repository_owner }}/pushd
       - name: Publish
         uses: docker/build-push-action@v4
         with:
@@ -207,7 +207,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ghcr.io/stoatchat/voice-ingress
+            ghcr.io/${{ github.repository_owner }}/voice-ingress
       - name: Publish
         uses: docker/build-push-action@v4
         with:
