@@ -16,6 +16,7 @@ redis-kiss = { workspace = true }
 # Utility
 lru = { workspace = true }
 url = { workspace = true }
+url-escape = { workspace = true }
 log = { workspace = true }
 dashmap = { workspace = true }
 linkify = { workspace = true }
@@ -30,6 +31,8 @@ bitfield = { workspace = true }
 # ID / key generation
 ulid = { workspace = true }
 nanoid = { workspace = true }
+base64 = { workspace = true }
+sha2 = { workspace = true }
 
 # serde
 serde_json = { workspace = true }
