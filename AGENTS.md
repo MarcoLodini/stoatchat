@@ -86,3 +86,21 @@ contribution guide at https://developers.stoat.chat/developing/contrib/.
 3. ✅ No logout sync — RP-Initiated Logout (`end_session.rs`) redirects to Authentik's `end_session_endpoint`.
 4. ✅ Opaque SSO errors — user-friendly error redirects (`/login?error=sso_error` or `...?error=sso_disabled`).
 5. OIDC discovery cached permanently — `OnceCell` in `discovery.rs`, never refreshed. Requires restart if issuer config changes.
+
+## Known upstream issues (not our bugs)
+
+1. **MongoDB test stack overflow** — `bots::crud` and `users::create_user` tests crash with
+   `thread has overflowed its stack` / `fatal runtime error: stack overflow` in test profile.
+   This happens on upstream revoltchat/stoatchat too. Not caused by our SSO changes.
+
+## CI notes
+
+1. **Docker publishes on tag push only** — trigger is `push: tags: - "*"`. Not on merge to main.
+   Retrigger: `git tag -f latest && git push -f origin latest`. The `concurrency` group cancels
+   in-flight builds on re-tag.
+2. **Cargo.lock must be regenerated after adding workspace deps** — Docker builds use `--locked`.
+   Run `cargo generate-lockfile` (or `mise x rust@1.92.0 -- cargo generate-lockfile`) after
+   modifying the root `Cargo.toml` workspace dependencies.
+3. **GHCR image tags must be lowercase** — `github.repository_owner` preserves case.
+   Fixed via bash `${OWNER,,}` step in `docker.yaml`. GitHub Actions has no built-in lowercase
+   filter.
