@@ -53,9 +53,9 @@ pub async fn sso_callback(
         let mut verifiers = CODE_VERIFIERS
             .lock()
             .unwrap_or_else(|e| e.into_inner());
-        let (verifier, created) = verifiers
-            .remove(&state)
-            .ok_or_else(|| return Ok(sso_error_redirect(&settings.hosts.app, "sso_error")))?;
+        let Some((verifier, created)) = verifiers.remove(&state) else {
+            return Ok(sso_error_redirect(&settings.hosts.app, "sso_error"));
+        };
         if created.elapsed() >= Duration::from_secs(600) {
             return Ok(sso_error_redirect(&settings.hosts.app, "sso_error"));
         }
