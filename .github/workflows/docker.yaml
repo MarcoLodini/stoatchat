@@ -29,6 +29,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
+      - name: Lowercase owner
+        id: owner_lower
+        run: echo "value=${OWNER,,}" >> "$GITHUB_OUTPUT"
+        env:
+          OWNER: ${{ github.repository_owner }}
+
       # Build the image
       - name: Build base image
         uses: docker/build-push-action@v4
@@ -36,7 +42,7 @@ jobs:
           context: .
           push: false
           platforms: linux/amd64,linux/arm64
-          tags: ghcr.io/${{ github.repository_owner | lower }}/base:latest
+          tags: ghcr.io/${{ steps.owner_lower.outputs.value }}/base:latest
           cache-from: type=gha,scope=buildx-base-multi-arch
           cache-to: type=gha,scope=buildx-base-multi-arch,mode=max
 
@@ -59,6 +65,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Lowercase owner
+        id: owner_lower
+        run: echo "value=${OWNER,,}" >> "$GITHUB_OUTPUT"
+        env:
+          OWNER: ${{ github.repository_owner }}
+
       # Build the image
       - name: Build base image
         uses: docker/build-push-action@v4
@@ -66,7 +78,7 @@ jobs:
           context: .
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: ghcr.io/${{ github.repository_owner | lower }}/base:latest
+          tags: ghcr.io/${{ steps.owner_lower.outputs.value }}/base:latest
 
       # stoatchat/api
       - name: Docker meta
@@ -74,7 +86,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ghcr.io/${{ github.repository_owner | lower }}/api
+            ghcr.io/${{ steps.owner_lower.outputs.value }}/api
       - name: Publish
         uses: docker/build-push-action@v4
         with:
@@ -84,7 +96,7 @@ jobs:
           file: crates/delta/Dockerfile
           tags: ${{ steps.meta-delta.outputs.tags }}
           build-args: |
-            BASE_IMAGE=ghcr.io/${{ github.repository_owner | lower }}/base:latest
+            BASE_IMAGE=ghcr.io/${{ steps.owner_lower.outputs.value }}/base:latest
           labels: ${{ steps.meta-delta.outputs.labels }}
 
       # stoatchat/events
@@ -93,7 +105,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ghcr.io/${{ github.repository_owner | lower }}/events
+            ghcr.io/${{ steps.owner_lower.outputs.value }}/events
       - name: Publish
         uses: docker/build-push-action@v4
         with:
@@ -103,7 +115,7 @@ jobs:
           file: crates/bonfire/Dockerfile
           tags: ${{ steps.meta-bonfire.outputs.tags }}
           build-args: |
-            BASE_IMAGE=ghcr.io/${{ github.repository_owner | lower }}/base:latest
+            BASE_IMAGE=ghcr.io/${{ steps.owner_lower.outputs.value }}/base:latest
           labels: ${{ steps.meta-bonfire.outputs.labels }}
 
       # stoatchat/file-server
@@ -112,7 +124,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ghcr.io/${{ github.repository_owner | lower }}/file-server
+            ghcr.io/${{ steps.owner_lower.outputs.value }}/file-server
       - name: Publish
         uses: docker/build-push-action@v4
         with:
@@ -122,7 +134,7 @@ jobs:
           file: crates/services/autumn/Dockerfile
           tags: ${{ steps.meta-autumn.outputs.tags }}
           build-args: |
-            BASE_IMAGE=ghcr.io/${{ github.repository_owner | lower }}/base:latest
+            BASE_IMAGE=ghcr.io/${{ steps.owner_lower.outputs.value }}/base:latest
           labels: ${{ steps.meta-autumn.outputs.labels }}
 
       # stoatchat/proxy
@@ -131,7 +143,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ghcr.io/${{ github.repository_owner | lower }}/proxy
+            ghcr.io/${{ steps.owner_lower.outputs.value }}/proxy
       - name: Publish
         uses: docker/build-push-action@v4
         with:
@@ -141,7 +153,7 @@ jobs:
           file: crates/services/january/Dockerfile
           tags: ${{ steps.meta-january.outputs.tags }}
           build-args: |
-            BASE_IMAGE=ghcr.io/${{ github.repository_owner | lower }}/base:latest
+            BASE_IMAGE=ghcr.io/${{ steps.owner_lower.outputs.value }}/base:latest
           labels: ${{ steps.meta-january.outputs.labels }}
 
       # stoatchat/gifbox
@@ -150,7 +162,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ghcr.io/${{ github.repository_owner | lower }}/gifbox
+            ghcr.io/${{ steps.owner_lower.outputs.value }}/gifbox
       - name: Publish
         uses: docker/build-push-action@v4
         with:
@@ -160,7 +172,7 @@ jobs:
           file: crates/services/gifbox/Dockerfile
           tags: ${{ steps.meta-gifbox.outputs.tags }}
           build-args: |
-            BASE_IMAGE=ghcr.io/${{ github.repository_owner | lower }}/base:latest
+            BASE_IMAGE=ghcr.io/${{ steps.owner_lower.outputs.value }}/base:latest
           labels: ${{ steps.meta-gifbox.outputs.labels }}
 
       # stoatchat/crond
@@ -169,7 +181,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ghcr.io/${{ github.repository_owner | lower }}/crond
+            ghcr.io/${{ steps.owner_lower.outputs.value }}/crond
       - name: Publish
         uses: docker/build-push-action@v4
         with:
@@ -179,7 +191,7 @@ jobs:
           file: crates/daemons/crond/Dockerfile
           tags: ${{ steps.meta-crond.outputs.tags }}
           build-args: |
-            BASE_IMAGE=ghcr.io/${{ github.repository_owner | lower }}/base:latest
+            BASE_IMAGE=ghcr.io/${{ steps.owner_lower.outputs.value }}/base:latest
           labels: ${{ steps.meta-crond.outputs.labels }}
 
       # stoatchat/pushd
@@ -188,7 +200,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ghcr.io/${{ github.repository_owner | lower }}/pushd
+            ghcr.io/${{ steps.owner_lower.outputs.value }}/pushd
       - name: Publish
         uses: docker/build-push-action@v4
         with:
@@ -198,7 +210,7 @@ jobs:
           file: crates/daemons/pushd/Dockerfile
           tags: ${{ steps.meta-pushd.outputs.tags }}
           build-args: |
-            BASE_IMAGE=ghcr.io/${{ github.repository_owner | lower }}/base:latest
+            BASE_IMAGE=ghcr.io/${{ steps.owner_lower.outputs.value }}/base:latest
           labels: ${{ steps.meta-pushd.outputs.labels }}
 
       # stoatchat/voice-ingress
@@ -207,7 +219,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ghcr.io/${{ github.repository_owner | lower }}/voice-ingress
+            ghcr.io/${{ steps.owner_lower.outputs.value }}/voice-ingress
       - name: Publish
         uses: docker/build-push-action@v4
         with:
@@ -217,5 +229,5 @@ jobs:
           file: crates/daemons/voice-ingress/Dockerfile
           tags: ${{ steps.meta-voice-ingress.outputs.tags }}
           build-args: |
-            BASE_IMAGE=ghcr.io/${{ github.repository_owner | lower }}/base:latest
+            BASE_IMAGE=ghcr.io/${{ steps.owner_lower.outputs.value }}/base:latest
           labels: ${{ steps.meta-voice-ingress.outputs.labels }}
