@@ -104,3 +104,13 @@ contribution guide at https://developers.stoat.chat/developing/contrib/.
 3. **GHCR image tags must be lowercase** — `github.repository_owner` preserves case.
    Fixed via bash `${OWNER,,}` step in `docker.yaml`. GitHub Actions has no built-in lowercase
    filter.
+4. **Docker action version lock-in** — `docker/build-push-action@v4` (2023) hangs silently with
+   zero output on Docker 28.0.4 / buildx 0.33.0 (2025+). Keep actions current. Tested working
+   set: `build-push-action@v6`, `setup-buildx-action@v3`, `login-action@v3`,
+   `metadata-action@v5`, `checkout@v4`.
+5. **`cargo build` parallelism in Docker** — don't set `-j` higher than `$(nproc)`. `-j 10`
+   on 4 CPUs causes CPU thrashing and OOM on the 15.6 GiB runner. Use `cargo build -j $(nproc)`
+   or omit `-j` entirely.
+6. **`latest` tag is protected** — ruleset #15848214 blocks deletion and force-push to
+   `refs/tags/latest`. Admin bypass only. Prevents unauthorized Docker publishes since the
+   tag triggers the CI workflow.
