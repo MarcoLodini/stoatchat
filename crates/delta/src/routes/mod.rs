@@ -14,6 +14,7 @@ mod push;
 mod root;
 mod safety;
 mod servers;
+mod sso;
 mod sync;
 mod users;
 mod webhooks;
@@ -22,6 +23,10 @@ pub fn mount(config: Settings, mut rocket: Rocket<Build>) -> Rocket<Build> {
     let settings = OpenApiSettings::default();
 
     if config.features.webhooks_enabled {
+        let (mut session_routes, session_api) = rocket_authifier::routes::session::routes();
+        if config.sso.as_ref().map(|s| s.enabled).unwrap_or(false) {
+            session_routes.retain(|r| !(r.method == rocket::http::Method::Post && r.uri.path() == "/login"));
+        }
         mount_endpoints_and_merged_docs! {
             rocket, "/".to_owned(), settings,
             "/" => (vec![], custom_openapi_spec()),
@@ -34,15 +39,20 @@ pub fn mount(config: Settings, mut rocket: Rocket<Build>) -> Rocket<Build> {
             "/custom" => customisation::routes(),
             "/safety" => safety::routes(),
             "/auth/account" => rocket_authifier::routes::account::routes(),
-            "/auth/session" => rocket_authifier::routes::session::routes(),
+            "/auth/session" => (session_routes, session_api),
             "/auth/mfa" => rocket_authifier::routes::mfa::routes(),
             "/onboard" => onboard::routes(),
             "/policy" => policy::routes(),
             "/push" => push::routes(),
             "/sync" => sync::routes(),
-            "/webhooks" => webhooks::routes()
+            "/webhooks" => webhooks::routes(),
+            "/auth/sso" => sso::routes()
         };
     } else {
+        let (mut session_routes, session_api) = rocket_authifier::routes::session::routes();
+        if config.sso.as_ref().map(|s| s.enabled).unwrap_or(false) {
+            session_routes.retain(|r| !(r.method == rocket::http::Method::Post && r.uri.path() == "/login"));
+        }
         mount_endpoints_and_merged_docs! {
             rocket, "/".to_owned(), settings,
             "/" => (vec![], custom_openapi_spec()),
@@ -55,16 +65,21 @@ pub fn mount(config: Settings, mut rocket: Rocket<Build>) -> Rocket<Build> {
             "/custom" => customisation::routes(),
             "/safety" => safety::routes(),
             "/auth/account" => rocket_authifier::routes::account::routes(),
-            "/auth/session" => rocket_authifier::routes::session::routes(),
+            "/auth/session" => (session_routes, session_api),
             "/auth/mfa" => rocket_authifier::routes::mfa::routes(),
             "/onboard" => onboard::routes(),
             "/policy" => policy::routes(),
             "/push" => push::routes(),
-            "/sync" => sync::routes()
+            "/sync" => sync::routes(),
+            "/auth/sso" => sso::routes()
         };
     }
 
     if config.features.webhooks_enabled {
+        let (mut session_routes, session_api) = rocket_authifier::routes::session::routes();
+        if config.sso.as_ref().map(|s| s.enabled).unwrap_or(false) {
+            session_routes.retain(|r| !(r.method == rocket::http::Method::Post && r.uri.path() == "/login"));
+        }
         mount_endpoints_and_merged_docs! {
             rocket, "/0.8".to_owned(), settings,
             "/" => (vec![], custom_openapi_spec()),
@@ -77,14 +92,19 @@ pub fn mount(config: Settings, mut rocket: Rocket<Build>) -> Rocket<Build> {
             "/custom" => customisation::routes(),
             "/safety" => safety::routes(),
             "/auth/account" => rocket_authifier::routes::account::routes(),
-            "/auth/session" => rocket_authifier::routes::session::routes(),
+            "/auth/session" => (session_routes, session_api),
             "/auth/mfa" => rocket_authifier::routes::mfa::routes(),
             "/onboard" => onboard::routes(),
             "/push" => push::routes(),
             "/sync" => sync::routes(),
-            "/webhooks" => webhooks::routes()
+            "/webhooks" => webhooks::routes(),
+            "/auth/sso" => sso::routes()
         };
     } else {
+        let (mut session_routes, session_api) = rocket_authifier::routes::session::routes();
+        if config.sso.as_ref().map(|s| s.enabled).unwrap_or(false) {
+            session_routes.retain(|r| !(r.method == rocket::http::Method::Post && r.uri.path() == "/login"));
+        }
         mount_endpoints_and_merged_docs! {
             rocket, "/0.8".to_owned(), settings,
             "/" => (vec![], custom_openapi_spec()),
@@ -97,11 +117,12 @@ pub fn mount(config: Settings, mut rocket: Rocket<Build>) -> Rocket<Build> {
             "/custom" => customisation::routes(),
             "/safety" => safety::routes(),
             "/auth/account" => rocket_authifier::routes::account::routes(),
-            "/auth/session" => rocket_authifier::routes::session::routes(),
+            "/auth/session" => (session_routes, session_api),
             "/auth/mfa" => rocket_authifier::routes::mfa::routes(),
             "/onboard" => onboard::routes(),
             "/push" => push::routes(),
-            "/sync" => sync::routes()
+            "/sync" => sync::routes(),
+            "/auth/sso" => sso::routes()
         };
     }
 

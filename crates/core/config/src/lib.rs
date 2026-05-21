@@ -242,6 +242,15 @@ pub struct ApiUsers {
 }
 
 #[derive(Deserialize, Debug, Clone)]
+pub struct Sso {
+    pub enabled: bool,
+    pub issuer_url: String,
+    pub client_id: String,
+    pub client_secret: String,
+    pub redirect_uri: String,
+}
+
+#[derive(Deserialize, Debug, Clone)]
 pub struct Api {
     pub registration: ApiRegistration,
     pub smtp: ApiSmtp,
@@ -448,6 +457,7 @@ pub struct Settings {
     pub files: Files,
     pub features: Features,
     pub sentry: Sentry,
+    pub sso: Option<Sso>,
     pub production: bool,
     pub disable_events_dont_use: bool,
 }
@@ -460,6 +470,14 @@ impl Settings {
 
         if self.api.security.captcha.hcaptcha_key.is_empty() {
             log::warn!("No Captcha key specified! Remember to add hCaptcha key.");
+        }
+
+        if let Some(sso) = &self.sso {
+            if sso.enabled {
+                log::info!("SSO is enabled, issuer: {}", sso.issuer_url);
+            }
+        } else if std::env::var("REVOLT__SSO__ENABLED").is_ok() {
+            log::info!("SSO configuration detected via environment variables.");
         }
     }
 }
