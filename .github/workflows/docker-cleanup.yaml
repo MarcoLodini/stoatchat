@@ -31,9 +31,14 @@ jobs:
           - pushd
           - voice-ingress
     steps:
+      - name: Lowercase owner
+        id: owner_lower
+        run: echo "value=${OWNER,,}" >> "$GITHUB_OUTPUT"
+        env:
+          OWNER: ${{ github.repository_owner }}
       - env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ORG: stoatchat
+          ORG: ${{ steps.owner_lower.outputs.value }}
           PACKAGE: ${{ matrix.package }}
           TAG: pr-${{ github.event.pull_request.number }}
         run: |
