@@ -99,7 +99,7 @@ contribution guide at https://developers.stoat.chat/developing/contrib/.
    Retrigger: `git tag -f latest && git push -f origin latest`. The `concurrency` group cancels
    in-flight builds on re-tag.
 2. **Cargo.lock must be regenerated after adding workspace deps** — Docker builds use `--locked`.
-   Run `cargo generate-lockfile` (or `mise x rust@1.92.0 -- cargo generate-lockfile`) after
+   Run `cargo generate-lockfile` after
    modifying the root `Cargo.toml` workspace dependencies.
 3. **GHCR image tags must be lowercase** — `github.repository_owner` preserves case.
    Fixed via bash `${OWNER,,}` step in `docker.yaml`. GitHub Actions has no built-in lowercase
