@@ -79,13 +79,33 @@ stoatchat that adds OIDC SSO as an optional feature (behind `sso.enabled` config
 our fork shrinks to just the frontend changes. The stoatchat project already has a
 contribution guide at https://developers.stoat.chat/developing/contrib/.
 
+## SSO Exclusive Mode (IdP-managed accounts)
+
+When `config.sso.enabled` is true, SSO is **always exclusive** — no mixed local/SSO users.
+All local account management is disabled because the IdP is the single source of truth.
+
+### User tracking (`UserFlags::Sso = 16`)
+- `crates/core/models/src/v0/users.rs` — `UserFlags::Sso` added to bitflags enum
+- `crates/delta/src/routes/sso/callback.rs` — sets `Sso` flag on new user creation and updates existing users on SSO login
+- Exposed in API via `user.flags`; frontend checks `(flags & 16) !== 0`
+
+### Blocked routes (filtered at mount-time in `crates/delta/src/routes/mod.rs`)
+All authifier account routes are removed except `GET /auth/account/` (fetch account info):
+- Account creation, deletion, disable
+- Password change, password reset
+- Email change, email verification, resend verification
+
+### Blocked operations for SSO users
+- `PATCH /users/@me/username` — returns `InvalidOperation` if `UserFlags::Sso` is set
+
 ## Known gaps
 
 1. ✅ Block email/password login — `POST /api/auth/session/login` filtered at mount-time in all 4 route blocks when `config.sso.enabled` is true.
 2. ✅ PKCE — SHA-256 challenge (`code_challenge_method=S256`), in-memory state→verifier store with 10-min TTL, CSRF via `state` parameter.
 3. ✅ No logout sync — RP-Initiated Logout (`end_session.rs`) redirects to Authentik's `end_session_endpoint`.
 4. ✅ Opaque SSO errors — user-friendly error redirects (`/login?error=sso_error` or `...?error=sso_disabled`).
-5. OIDC discovery cached permanently — `OnceCell` in `discovery.rs`, never refreshed. Requires restart if issuer config changes.
+5. ✅ SSO exclusive mode — all local account management disabled, `UserFlags::Sso` tracks IdP users.
+6. OIDC discovery cached permanently — `OnceCell` in `discovery.rs`, never refreshed. Requires restart if issuer config changes.
 
 ## Known upstream issues (not our bugs)
 

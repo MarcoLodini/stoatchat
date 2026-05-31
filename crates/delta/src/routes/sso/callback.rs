@@ -1,6 +1,7 @@
 use authifier::models::Account;
 use revolt_config::config;
-use revolt_database::Database;
+use revolt_database::{Database, PartialUser};
+use revolt_models::v0::UserFlags;
 use revolt_result::Result;
 
 use rocket::response::Redirect;
@@ -136,13 +137,39 @@ pub async fn sso_callback(
 
     let existing_user = db.fetch_user(&account.id).await.ok();
 
-    if existing_user.is_none() {
+    if let Some(mut existing_user) = existing_user {
+        let current_flags = existing_user.flags.unwrap_or(0);
+        if current_flags & (UserFlags::Sso as i32) == 0 {
+            let new_flags = current_flags | (UserFlags::Sso as i32);
+            existing_user.flags = Some(new_flags);
+            if existing_user
+                .update(
+                    db,
+                    PartialUser {
+                        flags: Some(new_flags),
+                        ..Default::default()
+                    },
+                    vec![],
+                )
+                .await
+                .is_err()
+            {
+                return Ok(sso_error_redirect(&settings.hosts.app, "sso_error"));
+            }
+        }
+    } else {
         let username = user_info
             .preferred_username
             .or(user_info.name)
             .unwrap_or_else(|| format!("user_{}", &account.id[..8]));
 
-        match revolt_database::User::create(db, username, account.id.clone(), None).await {
+        let partial = PartialUser {
+            flags: Some(UserFlags::Sso as i32),
+            ..Default::default()
+        };
+
+        match revolt_database::User::create(db, username, account.id.clone(), Some(partial)).await
+        {
             Ok(_) => {}
             Err(_) => return Ok(sso_error_redirect(&settings.hosts.app, "sso_error")),
         }

@@ -43,6 +43,10 @@ pub async fn change_username(
         })
     })?;
 
+    if user.flags.unwrap_or(0) & (v0::UserFlags::Sso as i32) != 0 {
+        return Err(create_error!(InvalidOperation));
+    }
+
     account
         .verify_password(&data.password)
         .map_err(|_| create_error!(InvalidCredentials))?;

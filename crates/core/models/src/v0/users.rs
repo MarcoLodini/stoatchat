@@ -201,6 +201,8 @@ auto_derived!(
         Banned = 4,
         /// User was marked as spam and removed from platform
         Spam = 8,
+        /// User authenticates via SSO (IdP-managed account)
+        Sso = 16,
     }
 
     /// New user profile data
