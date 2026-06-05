@@ -339,6 +339,8 @@ pub enum EventV1 {
     VoiceChannelLeave {
         id: String,
         user: String,
+        #[serde(default)]
+        disconnect: bool,
     },
     VoiceChannelMove {
         user: String,

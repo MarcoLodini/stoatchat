@@ -149,6 +149,12 @@ pub async fn ingress(
                 server_id: server_id.clone(),
             };
 
+            let disconnect = event.participant.as_ref().map_or(true, |p| {
+                use livekit_protocol::DisconnectReason;
+                p.disconnect_reason != DisconnectReason::ClientInitiated as i32
+                    && p.disconnect_reason != DisconnectReason::DuplicateIdentity as i32
+            });
+
             delete_voice_state(&channel, user_id).await?;
 
             // Dont send leave event when a user is moved
@@ -159,6 +165,7 @@ pub async fn ingress(
                 EventV1::VoiceChannelLeave {
                     id: channel_id.clone(),
                     user: user_id.clone(),
+                    disconnect,
                 }
                 .p(channel_id.clone())
                 .await;
